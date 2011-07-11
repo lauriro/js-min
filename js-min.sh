@@ -41,14 +41,16 @@ shift $((OPTIND-1))
 
 for a in "$@"; do
 	# remove comments
-	sed -r 's_//.*$__;:n s_/\*[^@]([^*]|\*[^/])*\*/__g;/\/\*[^@]/{N;bn}' $a |
+	sed -E 's_//.*$__;:n s_/\*[^@]([^*]|\*[^/])*\*/__g;/\/\*[^@]/{N;bn}' $a |
 	# strings to separated lines
-	sed -r "s_\/(\\\/|[^\/])*\/_\n&\n_g" |sed -r '/^[^\/]/s_"(\\"|[^"])*"_\n&\n_g' | sed -r "/^[^\/\"]/s_'(\\'|[^'])*'_\n&\n_g" |
+	sed -E "s_\/(\\\/|[^\/])*\/_\n&\n_g" | sed -E '/^[^\/]/s_"(\\"|[^"])*"_\n&\n_g' | sed -E "/^[^\/\"]/s_'(\\'|[^'])*'_\n&\n_g" |
 	# remove spaces
-	sed -r '/^['\''"\/]/!{s_\s*([][+=/,:*!?<>;&|\)\(\}\{]|-)\s*_\1_g;s_^\sin\s_in _;/\b(for|while)\(/!s_;$__}' |
-	sed -r ':a;/^[][\}\(\)\s\n]*$/{s_\n__;N;$!ba}' |
+	sed -E '/^['\''"\/]/!{s_\s*([][+=/,:*!?<>;&|\)\(\}\{]|-)\s*_\1_g;s_^\sin\s_in _;/\b(for|while)\(/!s_;$__}' |
 	# join strings back
 	sed -ne 'h;:a;n;/^['\''"\/]/{N;H;x;s_\n__g;x;ba};x;p;$!ba;g;p' |
+	# join closing closures to a previous line
+	sed -E ':a;N;/\n[][\}\(\):]+$/{s_\n__g;ta};P;D;' |
+	#sed -nr ':a;h;:b;$!{n;/^[][\}\(\)]+$/{H;x;s_\n__g;h;bb}};x;p;x;$!ba' |
 	sed -e 's/^\s*//' \
 	    -e '/^\s*$/d' \
 	    -e 's/^[\(\[]/;&/'
