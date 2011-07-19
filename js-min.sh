@@ -19,40 +19,48 @@
 #
 # The following is a list of compile dependencies for this project. These
 # dependencies are required to compile and run the application:
-#   - Unix tools: cat, sed
+#   - Unix tools: sed
 #
 #
 
-while getopts ":l:" opt; do case $opt in
-	l)
-		sed -e 's/^/ * /' -e '1i/**' -e '$a\ *\/' $OPTARG
-		;;
-	\?)
-		echo "Invalid option: -$OPTARG" >&2
-		exit 1
-		;;
-	:)
-		echo "Option -$OPTARG requires an argument." >&2
-		exit 1
-		;;
-esac done
+while getopts ':l:' OPT; do
+	case $OPT in
+		l)  sed -e 's/^/ * /' -e '1i/**' -e '$a\ *\/' $OPTARG;;
+
+		:)  echo "Option -$OPTARG requires an argument." >&2; exit 1;;
+		\?) echo "Invalid option: -$OPTARG" >&2; exit 1;;
+	esac
+done
 
 shift $((OPTIND-1))
 
+
 for a in "$@"; do
-	# remove comments
-	sed -E 's_//.*$__;:n s_/\*[^@]([^*]|\*[^/])*\*/__g;/\/\*[^@]/{N;bn}' $a |
-	# strings to separated lines
-	sed -E "s_\/(\\\/|[^\/])*\/_\n&\n_g" | sed -E '/^[^\/]/s_"(\\"|[^"])*"_\n&\n_g' | sed -E "/^[^\/\"]/s_'(\\'|[^'])*'_\n&\n_g" |
-	# remove spaces
-	sed -E '/^['\''"\/]/!{s_\s*([][+=/,:*!?<>;&|\)\(\}\{]|-)\s*_\1_g;s_^\sin\s_in _;/\b(for|while)\(/!s_;$__}' |
-	# join strings back
-	sed -ne 'h;:a;n;/^['\''"\/]/{N;H;x;s_\n__g;x;ba};x;p;$!ba;g;p' |
-	# join closing closures to a previous line
-	sed -E ':a;N;/\n[][\}\(\):]+$/{s_\n__g;ta};P;D;' |
-	#sed -nr ':a;h;:b;$!{n;/^[][\}\(\)]+$/{H;x;s_\n__g;h;bb}};x;p;x;$!ba' |
-	sed -e 's/^\s*//' \
-	    -e '/^\s*$/d' \
-	    -e 's/^[\(\[]/;&/'
+	# remove comments BSD safe
+	sed -E -e 's,//.*$,,' -e '/\/\*([^@]|$)/ba' -e b -e :a -e 's,/\*[^@]([^*]|\*[^/])*\*/,,g;t' -e 'N;ba' $a |
+
+	# regexps and strings to separated lines BDS safe
+	sed -E -e 's,/(\\/|[^*/])*/,\
+&\
+,g' | sed -E -e '/^[^\/]/s,"(\\"|[^"])*",\
+&\
+,g' | sed -E -e '/^[^\/"]/s,'\''(\\'\''|[^'\''])*'\'',\
+&\
+,g' |
+
+	# remove spaces BSD safe
+	sed -E -e "/^['\"\/]/b" \
+	       -e 's_[ 	]*([][+=/,:*!?<>;&|\)\(\}\{]|-)[ 	]*_\1_g' \
+	       -e 's,^ in ,in ,g' \
+	       -e '/\b(for|while)\(/!s,;$,,;' |
+
+	# join regexps and strings back BSD safe
+	sed -E -n -e h -e :a -e 'n;/^(['\''"]|\/[^*])/{N;H;x;s,\n,,g;x;};ta' -e 'x;p' -e '$!ba' -e 'g;p' |
+
+	# join closing closures to a previous line BSD safe
+	sed -E -e :a -e 'N;/\n[][\}\(\):]+$/s/\n//g;ta' -e 'P;D' |
+
+	# final cleanup BSD safe
+	sed -e 's/^[ 	]*//' -e '/^[ 	]*$/d' -e 's/^[\(\[]/;&/'
 done
 
