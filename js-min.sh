@@ -37,7 +37,7 @@ shift $((OPTIND-1))
 
 for a in "$@"; do
 	# remove comments BSD safe
-	sed -E -e 's,//.*$,,' -e '/\/\*([^@]|$)/ba' -e b -e :a -e 's,/\*[^@]([^*]|\*[^/])*\*/,,g;t' -e 'N;ba' $a |
+	sed -E -e 's,//.*$,,' -e '/\/\*([^@!]|$)/ba' -e b -e :a -e 's,/\*[^@!]([^*]|\*[^/])*\*/,,g;t' -e 'N;ba' $a |
 
 	# regexps and strings to separated lines BDS safe
 	sed -E -e 's,/(\\/|[^*/])*/,\
