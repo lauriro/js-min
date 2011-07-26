@@ -39,6 +39,9 @@ for a in "$@"; do
 	# remove comments BSD safe
 	sed -E -e 's,//.*$,,' -e '/\/\*([^@!]|$)/ba' -e b -e :a -e 's,/\*[^@!]([^*]|\*[^/])*\*/,,g;t' -e 'N;ba' $a |
 
+	# join wrapped lines
+	sed -e :a -e '/\\$/N' -e 's/\\\n//;ta' |
+
 	# regexps and strings to separated lines BDS safe
 	sed -E -e 's,/(\\/|[^*/])*/,\
 &\
