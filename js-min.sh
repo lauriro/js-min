@@ -54,16 +54,18 @@ for a in "$@"; do
 	# remove spaces BSD safe
 	sed -E -e "/^['\"\/]/b" \
 	       -e 's_[ 	]*([][+=/,:*!?<>;&|\)\(\}\{]|-)[ 	]*_\1_g' \
-	       -e 's,^ in ,in ,g' \
+	       -e 's,^  *in ,in ,g' \
+	       -e 's,\bcase $,case,g' \
 	       -e '/\b(for|while)\(/!s,;$,,;' |
 
 	# join regexps and strings back BSD safe
 	sed -E -n -e h -e :a -e 'n;/^(['\''"]|\/[^*])/{N;H;x;s,\n,,g;x;};ta' -e 'x;p' -e '$!ba' -e 'g;p' |
 
-	# join closing closures to a previous line BSD safe
-	sed -E -e :a -e 'N;/\n[][\}\(\):]+$/s/\n//g;ta' -e 'P;D' |
-
 	# final cleanup BSD safe
-	sed -e 's/^[ 	]*//' -e '/^[ 	]*$/d' -e 's/^[\(\[]/;&/'
+	sed -e 's/^[ 	]*//' -e '/^[ 	]*$/d' -e 's/^[\(\[]/;&/' |
+
+	# join closing closures to a previous line BSD safe
+	sed -E -e :a -e 'N;/\n([.,:?]|[][\}\(\):]+$)/s/\n//g;ta' -e 'P;D'
+
 done
 
