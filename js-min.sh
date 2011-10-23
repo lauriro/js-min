@@ -43,7 +43,7 @@ for a in "$@"; do
 	sed -e :a -e '/\\$/N' -e 's/\\\n//;ta' |
 
 	# regexps and strings to separated lines BDS safe
-	sed -E -e 's,/(\\/|[^*/])*/,\
+	sed -E -e 's,/(\\\*|[^*])(\\/|[^/])*/,\
 &\
 ,g' | sed -E -e '/^[^\/]/s,"(\\"|[^"])*",\
 &\
@@ -65,7 +65,7 @@ for a in "$@"; do
 	sed -e 's/^[ 	]*//' -e '/^[ 	]*$/d' -e 's/^[\(\[]/;&/' |
 
 	# join closing closures to a previous line BSD safe
-	sed -E -e :a -e 'N;/\n([.,:?]|[][\}\(\):]+$)/s/\n//g;ta' -e 'P;D'
+	sed -E -e :a -e 'N;/\n([-+.,:?]|[][\}\(\):,]+$)/s/\n//g;ta' -e 'P;D'
 
 done
 
