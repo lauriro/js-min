@@ -23,9 +23,12 @@
 #
 #
 
-while getopts ':l:' OPT; do
+COMMENT_OUT="comment_out"
+
+while getopts ':l:r:' OPT; do
 	case $OPT in
 		l)  sed -e 's/^/ * /' -e '1i/**' -e '$a\ *\/' $OPTARG;;
+		r)  COMMENT_OUT="$OPTARG";;
 
 		:)  echo "Option -$OPTARG requires an argument." >&2; exit 1;;
 		\?) echo "Invalid option: -$OPTARG" >&2; exit 1;;
@@ -37,7 +40,13 @@ shift $((OPTIND-1))
 
 for a in "$@"; do
 	# remove comments BSD safe
-	sed -E -e 's,//.*$,,' -e '/\/\*([^@!]|$)/ba' -e b -e :a -e 's,/\*[^@!]([^*]|\*[^/])*\*/,,g;t' -e 'N;ba' $a |
+	sed -E -e 's,//\*\* ('$COMMENT_OUT'),/* ,;ta' \
+	       -e 's,//.*$,,' \
+	       -e '/\/\*([^@!]|$)/ba' \
+	       -e b \
+	       -e :a \
+	       -e 's,/\*[^@!]([^*]|\*[^/])*\*/,,g;t' \
+	       -e 'N;ba' $a |
 
 	# join wrapped lines
 	sed -e :a -e '/\\$/N' -e 's/\\\n//;ta' |
