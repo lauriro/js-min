@@ -23,12 +23,14 @@
 #
 #
 
+COMMENT_IN="comment_in"
 COMMENT_OUT="comment_out"
 
-while getopts ':l:r:' OPT; do
+while getopts ':l:i:o:' OPT; do
 	case $OPT in
 		l)  sed -e 's/^/ * /' -e '1i/**' -e '$a\ *\/' $OPTARG;;
-		r)  COMMENT_OUT="$OPTARG";;
+		i)  COMMENT_IN="$OPTARG";;
+		o)  COMMENT_OUT="$OPTARG";;
 
 		:)  echo "Option -$OPTARG requires an argument." >&2; exit 1;;
 		\?) echo "Invalid option: -$OPTARG" >&2; exit 1;;
@@ -39,42 +41,56 @@ shift $((OPTIND-1))
 
 
 for a in "$@"; do
-	# remove comments BSD safe
-	sed -E -e 's,//\*\* ('$COMMENT_OUT'),/* ,;ta' \
-	       -e 's,//.*$,,' \
-	       -e '/\/\*([^@!]|$)/ba' \
-	       -e b \
-	       -e :a \
-	       -e 's,/\*[^@!]([^*]|\*[^/])*\*/,,g;t' \
-	       -e 'N;ba' $a |
-
 	# join wrapped lines
-	sed -e :a -e '/\\$/N' -e 's/\\\n//;ta' |
+	sed -e :a -e '/\\$/N' -e 's/\\\n//;ta' $a
 
-	# regexps and strings to separated lines BDS safe
-	sed -E -e 's,/(\\\*|[^*])(\\/|[^/])*/,\
+	# Add extra ending comment
+	echo '//*/'
+done |
+
+# remove comments BSD safe
+sed -E \
+		-e 's,//\*\* ('$COMMENT_OUT'),/* ,;ta' \
+		-e 's,/\*\* ('$COMMENT_IN'),// ,' \
+		-e 's,//.*$,,' \
+		-e '/\/\*([^@!]|$)/ba' \
+		-e b \
+		-e :a \
+		-e 's,/\*[^@!]([^*]|\*[^/])*\*/,,g;t' \
+		-e 'N;ba' |
+
+# regexps and strings to separated lines BDS safe
+sed -E -e 's,/(\\\*|[^*])(\\/|[^/])*/,\
 &\
-,g' | sed -E -e '/^[^\/]/s,"(\\"|[^"])*",\
+,g' |
+sed -E -e '/^[^\/]/s,"(\\"|[^"])*",\
 &\
-,g' | sed -E -e '/^[^\/"]/s,'\''(\\'\''|[^'\''])*'\'',\
+,g' |
+sed -E -e '/^[^\/"]/s,'\''(\\'\''|[^'\''])*'\'',\
 &\
 ,g' |
 
-	# remove spaces BSD safe
-	sed -E -e "/^['\"\/]/b" \
-	       -e 's_[ 	]*([][+=/,:*!?<>;&|\)\(\}\{]|-)[ 	]*_\1_g' \
-	       -e 's,^  *in ,in ,g' \
-	       -e 's,\bcase $,case,g' \
-	       -e '/\b(for|while)\(/!s,;$,,;' |
+# remove spaces BSD safe
+sed -E \
+    -e "/^['\"\/]/b" \
+    -e 's_[ 	]*([][+=/,:*!?<>;&|\)\(\}\{]|-)[ 	]*_\1_g' \
+    -e 's,^  *in ,in ,g' \
+    -e 's,\bcase $,case,g' \
+    -e '/\b(for|while)\(/!s,;$,,;' |
+	
+# join regexps and strings back BSD safe
+sed -E -n -e h -e :a -e 'n;/^(['\''"]|\/[^*])/{N;H;x;s,\n,,g;x;};ta' -e 'x;p' -e '$!ba' -e 'g;p' |
 
-	# join regexps and strings back BSD safe
-	sed -E -n -e h -e :a -e 'n;/^(['\''"]|\/[^*])/{N;H;x;s,\n,,g;x;};ta' -e 'x;p' -e '$!ba' -e 'g;p' |
+# cleanup BSD safe
+sed -e 's/^[ 	]*//' -e '/^[ 	]*$/d' -e 's/^[\(\[]/;&/' |
 
-	# final cleanup BSD safe
-	sed -e 's/^[ 	]*//' -e '/^[ 	]*$/d' -e 's/^[\(\[]/;&/' |
+# join closing closures to a previous line BSD safe
+sed -E -e :a -e 'N;/\n([-+.,:?{|]|[][\}\(\):,]+$)/s/\n//g;ta' -e 'P;D' |
 
-	# join closing closures to a previous line BSD safe
-	sed -E -e :a -e 'N;/\n([-+.,:?]|[][\}\(\):,]+$)/s/\n//g;ta' -e 'P;D'
+# minimize javascript
+sed -E \
+    -e 's,\breturn true\b,return!0,g' \
+    -e 's,\breturn false\b,return!1,g' \
+    -e 's,(\bnew [[:alpha:]]*)\(\),\1,g'
 
-done
 
