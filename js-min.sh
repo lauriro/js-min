@@ -2,16 +2,16 @@
 #
 # Tool for merging and minimizing js files
 #
-# Usage: ./js-min.sh [-l LICENSE_FILE] [FILE]... > min.js
+# Usage: ./js-min.sh [-l LICENSE_FILE] [-i comment_in_regexp] [-o comment_out_regexp] [FILE]... > min.js
 #
 #
 # THE BEER-WARE LICENSE
 # =====================
 #
-# <lauri@rooden.ee> wrote this file. As long as you retain this notice
-# you can do whatever you want with this stuff. If we meet some day, and
-# you think this stuff is worth it, you can buy me a beer in return.
-# -- Lauri Rooden
+# <lauri@rooden.ee> wrote this file. As long as you retain this notice you 
+# can do whatever you want with this stuff at your own risk. If we meet some 
+# day, and you think this stuff is worth it, you can buy me a beer in return.
+# -- Lauri Rooden -- https://github.com/lauriro/web_tools
 #
 #
 # Dependencies
@@ -22,6 +22,8 @@
 #   - Unix tools: sed
 #
 #
+
+export LC_ALL=C
 
 COMMENT_IN="comment_in"
 COMMENT_OUT="comment_out"
@@ -50,14 +52,14 @@ done |
 
 # remove comments BSD safe
 sed -E \
-		-e 's,//\*\* ('$COMMENT_OUT'),/* ,;ta' \
-		-e 's,/\*\* ('$COMMENT_IN'),// ,' \
-		-e 's,//.*$,,' \
-		-e '/\/\*([^@!]|$)/ba' \
-		-e b \
-		-e :a \
-		-e 's,/\*[^@!]([^*]|\*[^/])*\*/,,g;t' \
-		-e 'N;ba' |
+    -e 's,//\*\* ('$COMMENT_OUT'),/* ,;ta' \
+    -e 's,/\*\* ('$COMMENT_IN'),// ,' \
+    -e 's,//.*$,,' \
+    -e '/\/\*([^@!]|$)/ba' \
+    -e b \
+    -e :a \
+    -e 's,/\*[^@!]([^*]|\*[^/])*\*/,,g;t' \
+    -e 'N;ba' |
 
 # regexps and strings to separated lines BDS safe
 sed -E -e 's,/(\\\*|[^*])(\\/|[^/])*/,\
@@ -77,7 +79,7 @@ sed -E \
     -e 's,^  *in ,in ,g' \
     -e 's,\bcase $,case,g' \
     -e '/\b(for|while)\(/!s,;$,,;' |
-	
+
 # join regexps and strings back BSD safe
 sed -E -n -e h -e :a -e 'n;/^(['\''"]|\/[^*])/{N;H;x;s,\n,,g;x;};ta' -e 'x;p' -e '$!ba' -e 'g;p' |
 
@@ -91,6 +93,6 @@ sed -E -e :a -e 'N;/\n([-+.,:?{|]|[][\}\(\):,]+$)/s/\n//g;ta' -e 'P;D' |
 sed -E \
     -e 's,\breturn true\b,return!0,g' \
     -e 's,\breturn false\b,return!1,g' \
-    -e 's,(\bnew [[:alpha:]]*)\(\),\1,g'
+    -e 's,\b(new [[:alpha:]]*)\(\),\1,g'
 
 
