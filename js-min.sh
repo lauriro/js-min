@@ -88,7 +88,7 @@ sed -E -n -e h -e :a -e 'n;/^(['\''"]|\/[^*])/{N;H;x;s,\n,,g;x;};ta' -e 'x;p' -e
 sed -e 's/^[ 	]*//' -e '/^[ 	]*$/d' -e 's/^[\(\[]/;&/' |
 
 # join closing closures to a previous line BSD safe
-sed -E -e :a -e 'N;/\n([-+.,:?{|]|[][\}\(\):,]+$)/s/\n//g;ta' -e 'P;D' |
+sed -E -e :a -e 'N;/[:{]\n|\n([-+.,:?{|]|[][\}\(\):,]+$)/s/\n//g;ta' -e 'P;D' |
 
 # minimize javascript
 sed -E \
