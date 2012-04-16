@@ -87,13 +87,14 @@ sed -E -n -e h -e :a -e 'n;/^(['\''"]|\/[^*])/{N;H;x;s,\n,,g;x;};ta' -e 'x;p' -e
 # cleanup BSD safe
 sed -e 's/^[ 	]*//' -e '/^[ 	]*$/d' -e 's/^[\(\[]/;&/' |
 
-# join closing closures to a previous line BSD safe
-sed -E -e :a -e 'N;/[:{,?]\n|\n([-+.,:?{|]|[][\}\(\):,]+$)/s/\n//g;ta' -e 'P;D' |
+# join lines
+sed -E -e :a -e 'N;/[{:?,\|]\n|\n[][)(}{+:?,.\|+-]/s/\n//g;ta' -e 'P;D' |
 
 # minimize javascript
 sed -E \
     -e 's,\breturn true\b,return!0,g' \
     -e 's,\breturn false\b,return!1,g' \
+    -e 's,;},},g' \
     -e 's,\b(new [[:alpha:]]*)\(\),\1,g'
 
 
