@@ -30,7 +30,9 @@ COMMENT_OUT="comment_out"
 
 while getopts ':l:i:o:' OPT; do
 	case $OPT in
-		l)  sed -e 's/^/ * /' -e '1i/**' -e '$a\ *\/' $OPTARG;;
+		l)  sed -e 's/^/ * /' -e '1i\
+/**' -e '$a\
+\ *\/' $OPTARG;;
 		i)  COMMENT_IN="$OPTARG";;
 		o)  COMMENT_OUT="$OPTARG";;
 
@@ -78,8 +80,8 @@ sed -E \
     -e "/^['\"\/]/b" \
     -e 's_[ 	]*([][+=/,:*!?<>;&|\)\(\}\{]|-)[ 	]*_\1_g' \
     -e 's,^  *in ,in ,g' \
-    -e 's,\bcase $,case,g' \
-    -e '/\b(for|while)\(/!s,;$,,;' |
+    -e 's,case $,case,g' \
+    -e '/(for|while)\(/!s,;$,,;' |
 
 # join regexps and strings back BSD safe
 sed -E -n -e h -e :a -e 'n;/^(['\''"]|\/[^*])/{N;H;x;s,\n,,g;x;};ta' -e 'x;p' -e '$!ba' -e 'g;p' |
@@ -88,13 +90,13 @@ sed -E -n -e h -e :a -e 'n;/^(['\''"]|\/[^*])/{N;H;x;s,\n,,g;x;};ta' -e 'x;p' -e
 sed -e 's/^[ 	]*//' -e '/^[ 	]*$/d' -e 's/^[\(\[]/;&/' |
 
 # join lines
-sed -E -e :a -e 'N;/[{:?,\|]\n|\n[][)(}{+:?,.\|+-]/s/\n//g;ta' -e 'P;D' |
+sed -E -e :a -e 'N;/[{:?,\|]\n|\n[][)(}{+:?,.\|+-]/s/\n//g' -e '$!ta'  -e 'P;D' |
 
 # minimize javascript
 sed -E \
-    -e 's,\breturn true\b,return!0,g' \
-    -e 's,\breturn false\b,return!1,g' \
+    -e 's/return true/return\!0/g' \
+    -e 's,return false,return\!1,g' \
     -e 's,;},},g' \
-    -e 's,\b(new [[:alpha:]]*)\(\),\1,g'
+    -e 's,(new [[:alpha:]]*)\(\),\1,g'
 
 
