@@ -1,27 +1,15 @@
 #!/bin/sh
 #
+#
 # Tool for merging and minimizing js files
+#
+#    @version  pre-0.2
+#    @author   Lauri Rooden - https://github.com/lauriro/js-min
+#    @license  MIT License  - http://www.opensource.org/licenses/mit-license
 #
 # Usage: ./js-min.sh [-l LICENSE_FILE] [-i comment_in_regexp] [-o comment_out_regexp] [FILE]... > min.js
 #
-#
-# THE BEER-WARE LICENSE
-# =====================
-#
-# <lauri@rooden.ee> wrote this file. As long as you retain this notice you 
-# can do whatever you want with this stuff at your own risk. If we meet some 
-# day, and you think this stuff is worth it, you can buy me a beer in return.
-# -- Lauri Rooden -- https://github.com/lauriro/web_tools
-#
-#
-# Dependencies
-# ============
-#
-# The following is a list of compile dependencies for this project. These
-# dependencies are required to compile and run the application:
-#   - Unix tools: sed
-#
-#
+
 
 export LC_ALL=C
 
