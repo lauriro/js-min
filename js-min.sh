@@ -3,7 +3,7 @@
 #
 # Tool for merging and minimizing js files
 #
-#    @version  pre-0.2
+#    @version  0.2
 #    @author   Lauri Rooden - https://github.com/lauriro/js-min
 #    @license  MIT License  - http://www.opensource.org/licenses/mit-license
 #
