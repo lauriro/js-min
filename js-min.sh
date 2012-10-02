@@ -7,30 +7,17 @@
 #    @author   Lauri Rooden - https://github.com/lauriro/js-min
 #    @license  MIT License  - http://lauri.rooden.ee/mit-license.txt
 #
-# Usage: ./js-min.sh [-l LICENSE_FILE] [-i comment_in_regexp] [-o comment_out_regexp] [FILE]... > min.js
+# Usage: ./js-min.sh [-t TOGGLE_REGEXP] [FILE]... > min.js
 #
 
 
 export LC_ALL=C
 
-COMMENT_IN="comment_in"
-COMMENT_OUT="comment_out"
-
-while getopts ':l:i:o:' OPT; do
-	case $OPT in
-		l)  sed -e 's/^/ * /' -e '1i\
-/**' -e '$a\
-\ *\/' $OPTARG;;
-		i)  COMMENT_IN="$OPTARG";;
-		o)  COMMENT_OUT="$OPTARG";;
-
-		:)  echo "Option -$OPTARG requires an argument." >&2; exit 1;;
-		\?) echo "Invalid option: -$OPTARG" >&2; exit 1;;
-	esac
-done
-
-shift $((OPTIND-1))
-
+# Comment blocks may be toggled with the `-t` option.
+getopts t: OPT && {
+	TOGGLE="$OPTARG"
+	shift;shift
+}
 
 for a in "$@"; do
 	# join wrapped lines
@@ -42,8 +29,7 @@ done |
 
 # remove comments BSD safe
 sed -E \
-    -e 's,//\*\* ('$COMMENT_OUT'),/* ,;ta' \
-    -e 's,/\*\* ('$COMMENT_IN'),// ,' \
+    -e 's,//\*\* ('${TOGGLE-COMMENT_OUT}'),/* ,;ta' \
     -e 's,//.*$,,;tx' \
     -e :x \
     -e '/\/\*([^@!]|$)/ba' \

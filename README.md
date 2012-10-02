@@ -4,7 +4,7 @@ JavaScript minifier
 
 Tool for merging and minimizing JavaScript files.
 
-    Usage: ./js-min.sh [-l LICENSE_FILE] [FILE]... > min.js
+    Usage: ./js-min.sh [FILE]... > min.js
 
 
 ### Licence

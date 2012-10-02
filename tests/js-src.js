@@ -41,3 +41,24 @@ function f2 () {
 	if ('3' in arguments) return "3";
 }
 
+!function(){
+	//** opt1
+	var a = 1
+	/*/
+	var a = 2
+	//*/
+	
+	//** opt2
+	var b = 1
+	/*/
+	var b = 2
+	//*/
+	
+	//** opt3
+	var c = 1
+	/*/
+	var c = 2
+	//*/
+	
+
+}()
