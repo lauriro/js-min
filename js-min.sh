@@ -1,27 +1,15 @@
 #!/bin/sh
 #
+#
 # Tool for merging and minimizing js files
+#
+#    @version  0.2
+#    @author   Lauri Rooden - https://github.com/lauriro/js-min
+#    @license  MIT License  - http://www.opensource.org/licenses/mit-license
 #
 # Usage: ./js-min.sh [-l LICENSE_FILE] [-i comment_in_regexp] [-o comment_out_regexp] [FILE]... > min.js
 #
-#
-# THE BEER-WARE LICENSE
-# =====================
-#
-# <lauri@rooden.ee> wrote this file. As long as you retain this notice you 
-# can do whatever you want with this stuff at your own risk. If we meet some 
-# day, and you think this stuff is worth it, you can buy me a beer in return.
-# -- Lauri Rooden -- https://github.com/lauriro/web_tools
-#
-#
-# Dependencies
-# ============
-#
-# The following is a list of compile dependencies for this project. These
-# dependencies are required to compile and run the application:
-#   - Unix tools: sed
-#
-#
+
 
 export LC_ALL=C
 
@@ -30,7 +18,9 @@ COMMENT_OUT="comment_out"
 
 while getopts ':l:i:o:' OPT; do
 	case $OPT in
-		l)  sed -e 's/^/ * /' -e '1i/**' -e '$a\ *\/' $OPTARG;;
+		l)  sed -e 's/^/ * /' -e '1i\
+/**' -e '$a\
+\ *\/' $OPTARG;;
 		i)  COMMENT_IN="$OPTARG";;
 		o)  COMMENT_OUT="$OPTARG";;
 
@@ -78,8 +68,8 @@ sed -E \
     -e "/^['\"\/]/b" \
     -e 's_[ 	]*([][+=/,:*!?<>;&|\)\(\}\{]|-)[ 	]*_\1_g' \
     -e 's,^  *in ,in ,g' \
-    -e 's,\bcase $,case,g' \
-    -e '/\b(for|while)\(/!s,;$,,;' |
+    -e 's,case $,case,g' \
+    -e '/(for|while)\(/!s,;$,,;' |
 
 # join regexps and strings back BSD safe
 sed -E -n -e h -e :a -e 'n;/^(['\''"]|\/[^*])/{N;H;x;s,\n,,g;x;};ta' -e 'x;p' -e '$!ba' -e 'g;p' |
@@ -88,13 +78,13 @@ sed -E -n -e h -e :a -e 'n;/^(['\''"]|\/[^*])/{N;H;x;s,\n,,g;x;};ta' -e 'x;p' -e
 sed -e 's/^[ 	]*//' -e '/^[ 	]*$/d' -e 's/^[\(\[]/;&/' |
 
 # join lines
-sed -E -e :a -e 'N;/[{:?,\|]\n|\n[][)(}{+:?,.\|+-]/s/\n//g;ta' -e 'P;D' |
+sed -E -e :a -e 'N;/[{:?,\|]\n|\n[][)(}{+:?,.\|+-]/s/\n//g' -e '$!ta'  -e 'P;D' |
 
 # minimize javascript
 sed -E \
-    -e 's,\breturn true\b,return!0,g' \
-    -e 's,\breturn false\b,return!1,g' \
+    -e 's/return true/return\!0/g' \
+    -e 's,return false,return\!1,g' \
     -e 's,;},},g' \
-    -e 's,\b(new [[:alpha:]]*)\(\),\1,g'
+    -e 's,(new [[:alpha:]]*)\(\),\1,g'
 
 
