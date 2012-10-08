@@ -5,7 +5,7 @@
 #
 #    @version  pre-0.3
 #    @author   Lauri Rooden - https://github.com/lauriro/js-min
-#    @license  MIT License  - http://www.opensource.org/licenses/mit-license
+#    @license  MIT License  - http://lauri.rooden.ee/mit-license.txt
 #
 # Usage: ./js-min.sh [-l LICENSE_FILE] [-i comment_in_regexp] [-o comment_out_regexp] [FILE]... > min.js
 #
