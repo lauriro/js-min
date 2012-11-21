@@ -3,14 +3,12 @@
 EXIT=0
 
 cd ${0%/*}
-for F in *min.js; do
-	DIFF=$(../js-min.sh ${F/min/src} | diff - $F)
-	if [ -n "$DIFF" ];then
-		EXIT=1
-		echo "Test $F fail:" 1>&2 
-		echo "$DIFF" 1>&2 
-	fi
-done
+
+DIFF=$(../js-min.sh -t 'opt2|opt3' js-src.js | diff - js-min.js)
+if [ -n "$DIFF" ];then
+	EXIT=1
+	printf "Test js-min.js fail:\n%s" "$DIFF" 1>&2 
+fi
 
 exit $EXIT
 

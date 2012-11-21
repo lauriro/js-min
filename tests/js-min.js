@@ -18,3 +18,6 @@ function f1(a,b){return!0}
 function f2(){if(1 in arguments)return 1
 if("2"in arguments)return '2'
 if('3'in arguments)return "3"}
+!function(){var a=1
+var b=2
+var c=2}()
