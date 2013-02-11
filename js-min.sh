@@ -61,7 +61,7 @@ sed -E \
 sed -E -n -e h -e :a -e 'n;/^(['\''"]|\/[^*])/{N;H;x;s,\n,,g;x;};ta' -e 'x;p' -e '$!ba' -e 'g;p' |
 
 # cleanup BSD safe
-sed -e 's/^[ 	]*//' -e '/^[ 	]*$/d' -e 's/^[\(\[]/;&/' |
+sed -e 's/^[ 	]*//' -e '/^[ 	]*$/d' |
 
 # join lines
 sed -E -e :a -e 'N;/[{:?,\|]\n|\n[][)(}{+:?,.\|+-]/s/\n//g' -e '$!ta'  -e 'P;D' |
